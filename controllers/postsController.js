@@ -80,11 +80,12 @@ exports.updatePost = async (req, res, next) => {
   try {
     const { content, user_id } = req.body;
 
-    if (!user_id === req.params.id) {
+    const post = await Posts.query().findById(req.params.id);
+    if (user_id !== post.user_id) {
       throw new Error(`User is not owner of the post`);
     }
 
-    const post = await Posts.query().patchAndFetchById(req.params.id, {
+    const newpost = await Posts.query().patchAndFetchById(req.params.id, {
       content: content,
       user_id: user_id,
     });
@@ -92,7 +93,7 @@ exports.updatePost = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        post: post,
+        post: newpost,
       },
     });
   } catch (error) {
